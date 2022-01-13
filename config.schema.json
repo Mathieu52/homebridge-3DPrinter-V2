@@ -1,7 +1,7 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "Homebridge 3D Printer",
   "pluginType": "platform",
-  "singular": true,
+  "singular": false,
   "schema": {
     "type": "object",
     "properties": {
@@ -10,7 +10,95 @@
         "type": "string",
         "required": true,
         "default": "Example Dynamic Platform"
+      },
+      "printers": {
+        "title": "Printers",
+        "type": "array",
+        "items": {
+          "type": "object",
+            "properties": {
+              "displayName": {
+                "title": "Name",
+                "type": "string",
+                "required": true,
+                "default": ""
+              },
+              "manufacturer": {
+                "title": "Manufacturer",
+                "type": "string",
+                "default": "Unknown"
+              },
+              "model": {
+                "title": "Model",
+                "type": "string",
+                "default": "Unknown"
+              },
+              "uniqueId": {
+                "title": "ID",
+                "type": "string",
+                "required": true,
+                "default": ""
+              },
+              "usb_port": {
+                "title": "USB Port",
+                "type": "string",
+                "required": true,
+                "default": ""
+              },
+              "baudrate": {
+                "title": "Connection Baudrate",
+                "type": "number",
+                "oneOf": [
+                  { "title": "50", "enum": [50]},
+                  { "title": "75", "enum": [75]},
+                  { "title": "110", "enum": [110]},
+                  { "title": "134", "enum": [134]},
+                  { "title": "150", "enum": [150]},
+                  { "title": "200", "enum": [200]},
+                  { "title": "300", "enum": [300]},
+                  { "title": "600", "enum": [600]},
+                  { "title": "1200", "enum": [1200]},
+                  { "title": "2400", "enum": [2400]},
+                  { "title": "4800", "enum": [4800]},
+                  { "title": "9600", "enum": [9600]},
+                  { "title": "14400", "enum": [14400]},
+                  { "title": "19200", "enum": [19200]},
+                  { "title": "38400", "enum": [38400]},
+                  { "title": "57600", "enum": [57600]},
+                  { "title": "115200", "enum": [115200]},
+                  { "title": "128000", "enum": [128000]},
+                  { "title": "256000", "enum": [256000]}
+                  ]
+              },
+              "type": {
+                "title": "Printer Type",
+                "type": "string",
+                "default": "fdm",
+                "oneOf": [
+                  { "title": "FDM", "enum": ["fdm"] },
+                  { "title": "SLA", "enum": ["sla"] },
+                  { "title": "DLP", "enum": ["dlp"] },
+                  { "title": "MSLA", "enum": ["msla"] }
+                ],
+                "required": true
+              },
+              "firmware": {
+                "title": "Printer Firmware",
+                "type": "string",
+                "default": "marlin",
+                "oneOf": [
+                  { "title": "Marlin", "enum": ["marlin"] },
+                  { "title": "Klipper", "enum": ["klipper"] },
+                  { "title": "Prusa", "enum": ["prusa"] },
+                  { "title": "Repetier", "enum": ["repetier"] },
+                  { "title": "RepRap", "enum": ["reprap"] },
+                  { "title": "Smoothieware", "enum": ["smoothieware"] }
+                ],
+                "required": true
+              }
+            }
+          }
+        }
       }
-    }
-  }
+   }
 }
