@@ -106,7 +106,7 @@ export class FDM_Printer {
       return this.switchOutputState;
     },
     async setSwitchOutputState(value : CharacteristicValue) {
-      return this.switchOutputState;
+      this.switchOutputState = value as number;
     },
   };
 
@@ -127,19 +127,22 @@ export class FDM_Printer {
       platform.log.info(`BaudRate for ${accessory.context.device.displayName} is invalid`);
     }
 
-    this.port = new SerialPort(path, {baudRate: baud, autoOpen: false});
-
-    this.port.open((err) => {
+    this.port = new SerialPort(path, {baudRate: baud, autoOpen: true}, (err) => {
       if (err) {
         return platform.log.info(`USB port ${path}, for ${accessory.context.device.displayName} doesn't exist`);
       }
     });
 
-    this.port.on('open', () => {
-      const parser = new Readline({ delimiter: '\n' });
-      this.port.pipe(parser);
-      parser.on('data', this.processIncomingData.bind(this));
-      this.port.write(this.FirwareGCode.TemperatureAutoReport(1) + '\n');
+    //this.port.on('open', () => {
+    this.platform.log.info(`${accessory.context.device.displayName} connected...`);
+    const parser = new Readline({ delimiter: '\n' });
+    this.port.pipe(parser);
+    parser.on('data', this.processIncomingData.bind(this));
+    this.port.write(this.FirwareGCode.TemperatureAutoReport(1) + '\n');
+    //});
+
+    this.port.on('close', () => {
+      this.platform.log.info(`${accessory.context.device.displayName} disconnected...`);
     });
 
     // set accessory information
@@ -215,49 +218,21 @@ export class FDM_Printer {
       .onSet(this.setFanRotation_Speed.bind(this));
 
     // TIME INFORMATION
-
-    /*
-    this.stateSwitch = new Array(2);
-
-    this.configureStateSwitch(0, 'On');
-    this.configureStateSwitch(1, 'Idle');
-    this.configureStateSwitch(2, 'Printing');
-    this.configureStateSwitch(3, 'Emergency');
-
-    this.stateSwitch[0].getCharacteristic(this.platform.Characteristic.On)
-      .onGet(this.Main.getOn.bind(this.Main))
-      .onSet(this.Main.setOn.bind(this.Main));
-
-    this.stateSwitch[1].getCharacteristic(this.platform.Characteristic.On)
-      .onGet(this.Main.getIDLE.bind(this.Main));
-
-    this.stateSwitch[2].getCharacteristic(this.platform.Characteristic.On)
-      .onGet(this.Main.getPRINTING.bind(this.Main));
-
-    this.stateSwitch[3].getCharacteristic(this.platform.Characteristic.On)
-      .onGet(this.Main.getEMERGENCY.bind(this.Main));
-
-    // eslint-disable-next-line max-len
-    this.statefulSwitch = this.accessory.getService(deviceName + ' - Test') || this.accessory.addService(this.platform.Service.StatefulProgrammableSwitch, deviceName + ' - Test', deviceUUID + ' - Test');
-
-    this.stateSwitch[1].getCharacteristic(this.platform.Characteristic.ProgrammableSwitchEvent)
-      .onGet(this.Test.getSwitchEvent.bind(this.Test));
-
-    this.stateSwitch[0].getCharacteristic(this.platform.Characteristic.ProgrammableSwitchOutputState)
-      .onGet(this.Test.getSwitchOutputState.bind(this.Test))
-      .onSet(this.Test.setSwitchOutputState.bind(this.Test));
-
     setInterval(() => {
-      this.port.write('M31\n');
-      const r = Math.round((Math.random() * 2.0));
-      this.Test.switchEvent = r;
-      this.stateSwitch[0].getCharacteristic(this.platform.Characteristic.ProgrammableSwitchEvent).updateValue(r);
+      if(!this.port.isOpen) {
+        this.platform.log.debug(`Attempting to connect to ${accessory.context.device.displayName}`);
+        this.port.open((err) => {
+          if (err) {
+            this.platform.log.debug('Attempt Failed...');
+          }
+        });
+      }
     }, 1000);
-    */
   }
 
   // DATA TREATMENT
   public async processIncomingData(data: string) {
+    this.port.flush();
     this.platform.log.debug(data);
     // eslint-disable-next-line no-control-regex
     const regexp = /([A-Z]): *(-?\d+.?\d*) *[/]*(-?\d+.?\d*)/g;
@@ -492,18 +467,5 @@ export class FDM_Printer {
   async setElapsed(value: CharacteristicValue) {
     this.PrintInfo.Elapsed_Time = value as number;
   }
-
-  //STATE SWITCH
-  /*
-  private configureStateSwitch(index: number, name: string) {
-    const deviceName = this.accessory.context.device.displayName;
-    const deviceUUID = this.accessory.context.device.uniqueId;
-    this.stateSwitch[index] = this.accessory.getService(deviceName + ' - ' + name) || this.accessory.addService(this.platform.Service.Switch, deviceName + ' - ' + name, deviceUUID + ' - ' + name);
-  }
-
-  private getStateSwitch(index: number) {
-    return this.stateSwitch[index];
-  }
-  */
 }
 

@@ -1,9 +1,7 @@
 import {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic} from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ExamplePlatformAccessory } from './platformAccessory';
 import { FDM_Printer } from './FDM_Printer';
-import { Marlin } from './GCode';
 
 /**
  * HomebridgePlatform
@@ -24,9 +22,6 @@ export class PrinterHomebridgePlatform implements DynamicPlatformPlugin {
   ) {
     //config.push('5');
     //console.log(Marlin.test2);
-
-
-    console.log('PATH : ', this.config.printers[0].usb_port);
 
     this.log.debug('Finished initializing platform:', this.config.name);
 

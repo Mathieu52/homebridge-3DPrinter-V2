@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { PrinterHomebridgePlatform } from './platform';
